@@ -1,0 +1,113 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.Book>
+
+@{
+    ViewData["Title"] = "Books List";
+}
+
+<style>
+    .book-card {
+        transition: transform 0.3s;
+        cursor: pointer;
+    }
+
+        .book-card:hover {
+            transform: scale(0.97);
+        }
+
+    .book-cover {
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px 8px 0 0;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .badge-status {
+        font-size: 0.9rem;
+        padding: 5px 10px;
+    }
+
+     
+    .offer-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: red;
+        color: white;
+        padding: 6px 10px;
+        font-weight: bold;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        box-shadow: 0 0 6px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+
+    .book-card {
+        position: relative;  
+    }
+</style>
+
+ 
+
+<h2 class="text-center mt-4">Books Available</h2>
+
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var book in Model)
+        {
+            <div class="col">
+                <div class="card h-100 shadow book-card" onclick="location.href='@Url.Action("Details", "Home", new { id = book.Id })'">
+
+                    @if (book.Offer != null)
+                    {
+                        <div class="offer-badge">
+                            🔥 Offer: @book.Offer% off only for Buy!
+                        </div>
+                    }
+
+                    <img src="@Url.Content("~/Covers/" + book.Cover)" class="card-img-top book-cover" alt="Book Cover" />
+
+                    <div class="card-body">
+                        <h5 class="card-title">@book.Title</h5>
+                        <p class="card-text"><strong>Author:</strong> @book.Author.FullName</p>
+                        <p class="card-text"><strong>Category:</strong> @book.Category.Name</p>
+                        <p class="card-text"><strong>Publisher:</strong> @book.Publisher.Name</p>
+                        <p class="card-text text-truncate"><strong>Description:</strong> @book.Description</p>
+                        <p class="card-text"><strong>Published:</strong> @book.PublishedDate.ToString("yyyy-MM-dd")</p>
+                        <p class="card-text"><strong>Total Copies:</strong> @book.TotalCopies</p>
+                        <p class="card-text"><strong>Available:</strong> @book.AvailableCopies</p>
+
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-primary"><strong>Buy:</strong> $@book.BuyPrice</span>
+                            <span class="text-warning"><strong>Borrow:</strong> $@book.BorrowPrice</span>
+                        </div>
+
+                        <p class="card-text">
+                            <strong>Status:</strong>
+                            @if (book.IsBorrow)
+                            {
+                                <span class="badge bg-danger badge-status">Borrowed</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success badge-status">Available</span>
+                            }
+                        </p>
+                    </div>
+
+                    <div class="d-flex justify-content-center mb-3">
+                        <a href="/Customer/Home/Details?id=@book.Id"
+                           class="btn btn-outline-primary me-2">
+                            Buy <i class="fa-solid fa-cart-plus"></i>
+                        </a>
+
+                        <a href="/Customer/Home/DetailsBorrow?id=@book.Id"
+                           class="btn btn-outline-success">
+                            Borrow <i class="fa-solid fa-book-open-reader"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            }
+        </div>
+    </div>

@@ -1,0 +1,80 @@
+﻿@model LibraryManagementSystem.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<style>
+    .zoom-img {
+        transition: transform 0.3s ease;
+    }
+
+        .zoom-img:hover {
+            transform: scale(1.05);
+        }
+
+    .details-box {
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        padding: 30px;
+        background-color: #fff;
+    }
+
+    .details-label {
+        font-weight: bold;
+        color: #555;
+    }
+
+    .details-value {
+        color: #222;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 details-box">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <img src="~/Covers/@Model.Cover" class="img-fluid zoom-img rounded" alt="Book Cover" />
+                </div>
+                <div class="col-md-8">
+                    <h2 class="mb-4">@Model.Title</h2>
+
+                    <p><span class="details-label">Author:</span> <span class="details-value">@Model.Author.FullName</span></p>
+                    <p><span class="details-label">Category:</span> <span class="details-value">@Model.Category.Name</span></p>
+                    <p><span class="details-label">Publisher:</span> <span class="details-value">@Model.Publisher.Name</span></p>
+                    <p><span class="details-label">Description:</span> <span class="details-value">@Model.Description</span></p>
+                    <p><span class="details-label">Published Date:</span> <span class="details-value">@Model.PublishedDate.ToString("yyyy-MM-dd")</span></p>
+                    <p><span class="details-label">Total Copies:</span> <span class="details-value">@Model.TotalCopies</span></p>
+                    <p><span class="details-label">Available Copies:</span> <span class="details-value">@Model.AvailableCopies</span></p>
+
+                    <p>
+                        <span class="details-label">Status:</span>
+                        @if (Model.IsBorrow)
+                        {
+                            <span class="badge bg-danger">Borrowed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Available</span>
+                        }
+                    </p>
+
+                    <form action="/Customer/Cart/AddToCart"  >
+
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label for="count" class="form-label">Number of Books</label>
+                            <input type="number" id="count" name="count" class="form-control w-25" required min="1" />
+                        </div>
+
+
+                        <button type="submit" class="btn btn-success">Buy Book</button>
+                    </form>
+                
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
