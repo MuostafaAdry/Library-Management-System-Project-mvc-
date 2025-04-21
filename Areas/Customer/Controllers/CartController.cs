@@ -3,6 +3,7 @@ using LibraryManagementSystem.Repositories.IRepositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+//using Type = LibraryManagementSystem.Models.Type;
 
 namespace LibraryManagementSystem.Areas.Customer.Controllers
 {
@@ -25,100 +26,135 @@ namespace LibraryManagementSystem.Areas.Customer.Controllers
         {
             var userId = _userManager.GetUserId(User);
 
-            var books = _cartRepository.Get(e => e.ApplicationUserId == userId, includeProps: e => e.
-            Include(e => e.Book));
+            var books = _cartRepository.Get(e => e.ApplicationUserId == userId,
+                includeProps: e => e.Include(e => e.Book)).ToList();
 
-            var total = books.Sum(e => e.Book.BuyPrice * e.CopyCount);
-            ViewBag.total = total;
-            return View(books.ToList());
+            //var total = 0.0 ;
+            //foreach (var item in books)
+            //{
+            //    if (item.Type==TypeStatues.Buying)
+            //    {
+            //        total = books.Sum(e => e.Book.BuyPrice * (1 - (e.Book.Offer ?? 0) / 100) * e.CopyCount);
+            //    }
+            //    else
+            //    {
+            //        total = books.Sum(e => e.Book.BorrowPrice  * e.CopyCount);
+            //    }
+            //}
+            double total = books
+                   .Where(e => e.Type == TypeStatues.Buying)
+                   .Sum(e => e.Book.BuyPrice * (1 - (e.Book.Offer ?? 0) / 100) * e.CopyCount)
+                   +
+                   books
+                   .Where(e => e.Type == TypeStatues.Borrowing)
+                   .Sum(e => e.Book.BorrowPrice * e.CopyCount);
+
+            ViewBag.total = total.ToString("F2");
+            return View(books);
         }
 
 
-        //public IActionResult AddToCart(int id, int count)
-        //{
-        //    var userId = _userManager.GetUserId(User);
-
-        //    var book = _bookRepository.GetOne(e => e.Id == id);
-        //    if (book != null)
-        //    {
-        //        if (book.AvailableCopies < count)
-        //        {
-        //            var cart = new Cart
-        //            {
-        //                ApplicationUserId = userId,
-        //                CopyCount = count,
-        //                BookId = id
-        //            };
-
-        //            var bookInDb = _cartRepository.GetOne(e => e.BookId == id && e.ApplicationUserId == userId);
-        //            if (bookInDb != null)
-        //                bookInDb.CopyCount = count;
-        //            else
-        //                _cartRepository.Create(cart);
-
-        //            _cartRepository.Commit();
-        //        }
-        //        else
-        //        {
-        //            TempData["Success"] = "Sorry you can not buy this amount We Have only @{bookInDb.Book.AvailableCopies}!";
-        //        }
-        //    }
-        //    else
-        //    {
-        //        TempData["Success"] = "not found";
-        //    }
-
-
-
-        //    return RedirectToAction("Index", "Home", new { area = "Customer" });
-
-        //}
-        public IActionResult AddToCart(int id, int count)
+        public IActionResult BuyingAddToCart(int id, int count)
         {
             var userId = _userManager.GetUserId(User);
-            var bookInDb = _cartRepository.GetOne(e => e.BookId == id && e.ApplicationUserId == userId);
 
-            // لو الكتاب مش موجود في الكارت
-            if (bookInDb == null)
+            var bookInDb = _cartRepository.GetOne(e => e.BookId == id &&
+                                                e.ApplicationUserId == userId &&
+                                                e.Type == TypeStatues.Buying);
+
+            var book = _bookRepository.GetOne(e => e.Id == id); // تأكد إنك عندك الريبو ده
+
+            if (book == null)
             {
-                var book = _bookRepository.GetOne(b => b.Id == id); // هات الكتاب
-                if (book == null || book.AvailableCopies < count)
-                {
-                    TempData["Success"] = $"Sorry, you can’t buy this amount. We have only {book?.AvailableCopies ?? 0}!";
-                    return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
-                }
+                TempData["Error"] = "Book not found";
+                return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
+            }
 
+            // التحقق من الكمية المطلوبة مقارنة بعدد النسخ المتاحة
+            if (book.AvailableCopies < count)
+            {
+                TempData["Error"] = "We do not have enough books";
+                return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
+            }
+
+            if (bookInDb != null)
+            {
+                bookInDb.CopyCount += count;
+                _cartRepository.Edit(bookInDb);
+            }
+            else
+            {
                 var cart = new Cart
                 {
                     ApplicationUserId = userId,
                     CopyCount = count,
-                    BookId = id
+                    BookId = id,
+                    Type = TypeStatues.Buying
                 };
                 _cartRepository.Create(cart);
-            }
-            else
-            {
-                if (bookInDb.Book.AvailableCopies < count)
-                {
-                    TempData["Success"] = $"Sorry, you can’t buy this amount. We have only {bookInDb.Book.AvailableCopies}!";
-                    return RedirectToAction("Details", "Home", new { area = "Customer",id=id });
-                }
-
-                bookInDb.CopyCount = count;
             }
 
             _cartRepository.Commit();
             TempData["Success"] = "Added Successfully";
+            return RedirectToAction("Index", "Home", new { area = "Customer" });
+        }
+
+        public IActionResult BorrowingAddToCart(int id, int copyNum, DateOnly returnDate)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var bookInDb = _cartRepository.GetOne(e => e.BookId == id &&
+                                                e.ApplicationUserId == userId &&
+                                                e.Type == TypeStatues.Borrowing);
+
+            var book = _bookRepository.GetOne(e => e.Id == id);
+
+            if (book == null)
+            {
+                TempData["Error"] = "Book not found";
+                return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
+
+            }
+
+            // التحقق من الكمية المطلوبة مقارنة بعدد النسخ المتاحة
+            if (book.AvailableCopies < copyNum)
+            {
+                TempData["Error"] = "We do not have enough books";
+                return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
+
+            }
+            if (bookInDb != null)
+            {
+                bookInDb.CopyCount += copyNum;
+                bookInDb.ReturnDate = returnDate;
+                _cartRepository.Edit(bookInDb);
+            }
+            else
+            {
+                var cart = new Cart
+                {
+                    ApplicationUserId = userId,
+                    CopyCount = copyNum,
+                    BookId = id,
+                    Type = TypeStatues.Borrowing,
+                    ReturnDate = returnDate
+                };
+                _cartRepository.Create(cart);
+            }
 
 
-            return RedirectToAction("index", "Home", new { area = "Customer" });
+
+            _cartRepository.Commit();
+            TempData["Success"] = "Borrowed Successfully";
+            return RedirectToAction("Index", "Home", new { area = "Customer" });
         }
 
 
-        public IActionResult Increment(int id, int page)
+        public IActionResult Increment(int id, TypeStatues type, int page)
         {
             var userId = _userManager.GetUserId(User);
-            var book = _cartRepository.GetOne(e => e.ApplicationUserId == userId && e.BookId == id);
+            var book = _cartRepository.GetOne(e => e.ApplicationUserId == userId && e.BookId == id
+            && e.Type == type);
             if (book != null)
             {
                 book.CopyCount++;
@@ -127,16 +163,32 @@ namespace LibraryManagementSystem.Areas.Customer.Controllers
             return RedirectToAction("Index", new { page = page });
         }
 
-        public IActionResult Decrement(int id, int page)
+        public IActionResult Decrement(int id, TypeStatues type, int page)
         {
             var userId = _userManager.GetUserId(User);
-            var book = _cartRepository.GetOne(e => e.ApplicationUserId == userId && e.BookId == id);
+            var book = _cartRepository.GetOne(e => e.ApplicationUserId == userId && e.BookId == id &&
+               e.Type == type);
             if (book != null && book.CopyCount > 1)
             {
                 book.CopyCount--;
                 _cartRepository.Commit();
             }
             return RedirectToAction("Index", new { page = page });
+        }
+
+ 
+        public IActionResult UpdateDate(int id, TypeStatues type,DateOnly ReturnDate )
+        {
+            var userId = _userManager.GetUserId(User);
+            var book = _cartRepository.GetOne(e => e.ApplicationUserId == userId && e.BookId == id
+            && e.Type == type, tracked: true);
+            if (book != null&&book.Type==type)
+            {
+                book.ReturnDate = ReturnDate;
+                _cartRepository.Edit(book);
+                _cartRepository.Commit();
+            }
+            return RedirectToAction("Index");
         }
 
         public IActionResult Delete(int id)
@@ -150,6 +202,10 @@ namespace LibraryManagementSystem.Areas.Customer.Controllers
                 TempData["Success"] = "Deleted Successfully";
             }
             return RedirectToAction("Index");
+        }
+        public IActionResult Pay()
+        {
+            return View();
         }
     }
 }

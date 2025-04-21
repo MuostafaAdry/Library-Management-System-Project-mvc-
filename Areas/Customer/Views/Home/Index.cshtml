@@ -26,7 +26,7 @@
         padding: 5px 10px;
     }
 
-     
+
     .offer-badge {
         position: absolute;
         top: 10px;
@@ -42,11 +42,11 @@
     }
 
     .book-card {
-        position: relative;  
+        position: relative;
     }
 </style>
 
- 
+
 
 <h2 class="text-center mt-4">Books Available</h2>
 
@@ -73,13 +73,25 @@
                         <p class="card-text"><strong>Publisher:</strong> @book.Publisher.Name</p>
                         <p class="card-text text-truncate"><strong>Description:</strong> @book.Description</p>
                         <p class="card-text"><strong>Published:</strong> @book.PublishedDate.ToString("yyyy-MM-dd")</p>
-                        <p class="card-text"><strong>Total Copies:</strong> @book.TotalCopies</p>
-                        <p class="card-text"><strong>Available:</strong> @book.AvailableCopies</p>
 
                         <div class="d-flex justify-content-between mb-2">
-                            <span class="text-primary"><strong>Buy:</strong> $@book.BuyPrice</span>
-                            <span class="text-warning"><strong>Borrow:</strong> $@book.BorrowPrice</span>
+                            <span class="text-primary">
+                                <strong>Buy:</strong>
+                                @if (book.Offer.HasValue && book.Offer > 0)
+                                {
+                                    <del>$@book.BuyPrice.ToString("F2")</del>
+                                    <span>$@((book.BuyPrice - (book.BuyPrice * book.Offer / 100)))</span>
+                                }
+                                else
+                                {
+                                    <span>$@book.BuyPrice.ToString("F2")</span>
+                                }
+                            </span>
+                            <span class="text-warning">
+                                <strong>Borrow:</strong> $@book.BorrowPrice.ToString("F2")
+                            </span>
                         </div>
+
 
                         <p class="card-text">
                             <strong>Status:</strong>
@@ -108,6 +120,6 @@
                 </div>
             </div>
 
-            }
-        </div>
+        }
     </div>
+</div>

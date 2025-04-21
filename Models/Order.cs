@@ -9,6 +9,7 @@
         public DateTime OrderDate { get; set; }
         public double OrderTotal { get; set; }
         public OrderStatus Status { get; set; }
+        public OrderType Type { get; set; }
 
         public bool OrderShipedStatus { get; set; }
         public bool PaymentStatus { get; set; }
@@ -26,6 +27,13 @@
         Processing = 2, // الطلب قيد المعالجة
         Shipped = 3,    // الطلب تم شحنه
         Delivered = 4   // الطلب تم توصيله
+
+    }
+
+    public enum OrderType
+    {
+        Buying = 0,
+        Borrowing = 1,    
 
     }
 }

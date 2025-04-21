@@ -44,10 +44,17 @@
                     <p><span class="details-label">Category:</span> <span class="details-value">@Model.Category.Name</span></p>
                     <p><span class="details-label">Publisher:</span> <span class="details-value">@Model.Publisher.Name</span></p>
                     <p><span class="details-label">Description:</span> <span class="details-value">@Model.Description</span></p>
-                    <p><span class="details-label">Published Date:</span> <span class="details-value">@Model.PublishedDate.ToString("yyyy-MM-dd")</span></p>
-                    <p><span class="details-label">Total Copies:</span> <span class="details-value">@Model.TotalCopies</span></p>
-                    <p><span class="details-label">Available Copies:</span> <span class="details-value">@Model.AvailableCopies</span></p>
+                    <p><span class="details-label">Published Date:</span> <span class="details-value">
+                        @Model.PublishedDate.ToString("yyyy-MM-dd")</span></p>
+                     <div class="d-flex justify-content-between mb-2">
+                        <span class="text-primary">
+                            <strong>Buy:</strong>
+                            <del>$@Model.BuyPrice</del>
+                            <span>@(Model.BuyPrice - (Model.BuyPrice * Model.Offer * 0.01))</span>
 
+                        </span>
+                      
+                    </div>
                     <p>
                         <span class="details-label">Status:</span>
                         @if (Model.IsBorrow)
@@ -60,7 +67,7 @@
                         }
                     </p>
 
-                    <form action="/Customer/Cart/AddToCart"  >
+                    <form action="/Customer/Cart/BuyingAddToCart">
 
                         <input type="hidden" name="id" value="@Model.Id" />
 
@@ -68,6 +75,7 @@
                             <label for="count" class="form-label">Number of Books</label>
                             <input type="number" id="count" name="count" class="form-control w-25" required min="1" />
                         </div>
+ 
 
 
                         <button type="submit" class="btn btn-success">Buy Book</button>

@@ -23,7 +23,7 @@
             <p><strong>Total Copies:</strong> @Model.TotalCopies</p>
             <p><strong>Available Copies:</strong> @Model.AvailableCopies</p>
 
-            <form asp-action="Borrow" method="post">
+            <form action="/Customer/Cart/BorrowingAddToCart" method="post">
                 <input type="hidden" name="id" value="@Model.Id" />
 
                 <div class="mb-3">

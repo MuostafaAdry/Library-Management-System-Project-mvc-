@@ -1,4 +1,4 @@
-﻿  @model IEnumerable<Cart>  
+﻿  @model IEnumerable<Cart>
 <form method="post">
     <br />
     <div class="card shadow border-0">
@@ -14,51 +14,94 @@
         <div class="card-body my-4">
             <div class="row"></div>
             <div class="row mb-3 pb-3">
-                <div class="col-md-2 offset-md-1">
-                    <a href="/Shop" class="btn btn-outline-primary text-uppercase mb-5 btn-sm"><small>Continue Shopping</small></a>
-                </div>
                 <div class="col-md-10 offset-md-1">
                     @if (Model != null)
                     {
                         @foreach (var item in Model)
                         {
-                            <div class="row border-bottom pb-3">
-                                <div class="d-none d-lg-block col-lg-1 text-center py-2">
-                                    <img src="~/Covers/@item.Book.Cover" class="rounded" width="100%" />
+                            <div class="row border-bottom pb-4 align-items-center">
+                                <div class="col-3 col-lg-1 text-center">
+                                    <img src="~/Covers/@item.Book.Cover" class="rounded shadow-sm" width="100%" />
                                 </div>
-                                <div class="col-12 col-lg-6 pt-md-3">
-                                    <h5 class="text-uppercase text-secondary"><strong>@item.Book.Title</strong></h5>
-                                    <p><small>@(item.Book.Description.Length > 20 ? item.Book.Description.Substring(0, 40) + "..." : item.Book.Description)</small></p>
 
+                                <div class="col-9 col-lg-5">
+                                    <h6 class="mb-1 text-dark fw-bold d-flex align-items-center">
+                                        @item.Book.Title
+                                        @if (item.Type == TypeStatues.Buying)
+                                        {
+                                            <span class="badge bg-primary text-white ms-2">Buying</span>
+                                            <span class="badge bg-danger text-white ms-2">@item.Book.Offer% Off!</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success text-white ms-2">Borrowing</span>
+
+                                        }
+                                    </h6>
+                                    <p class="text-muted mb-1" style="font-size: 0.85rem;">
+                                        @(item.Book.Description.Length > 40 ? item.Book.Description.Substring(0, 40) + "..." : item.Book.Description)
+                                        @if (item.Type == TypeStatues.Borrowing)
+                                        {
+
+                                            <div>
+                                                <form action="/Customer/Cart/UpdateDate" method="post">
+                                                    <input type="hidden" name="id" value="@item.BookId" />
+                                                    <input type="hidden" name="type" value="@((int)item.Type)" />
+                                                    <div class="mb-3">
+                                                        <label for="returnDate" class="form-label">Return Date</label>
+                                                        <input type="date" id="returnDate"
+                                                               name="ReturnDate"
+                                                               class="form-control w-10" required
+                                                               min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success">Edit</button>
+                                                </form>
+
+                                            </div>
+                                        }
+
+                                    </p>
                                 </div>
-                                <div class="col-12  col-lg-5 text-center row">
-                                    <div class="col-3 text-md-right pt-2 pt-md-4">
-                                        <h6 class="fw-semibold">
-                                            @item.Book.BuyPrice
-                                            <span class="text-muted">&nbsp;x&nbsp;</span>@item.CopyCount
-                                        </h6>
-                                    </div>
-                                    <div class="col-6 col-sm-4 col-lg-6 pt-2">
-                                        <div class="w-75 btn-group" role="group">
-                                            <a href="/Customer/Cart/Increment?id=@item.Book.Id&page=@ViewContext.HttpContext.Request.Query["page"]"
-                                               class="btn btn-outline-primary bg-gradient py-2">
-                                                <i class="bi bi-plus-square"></i>
-                                            </a> &nbsp;
-                                            <a href="/Customer/Cart/Decrement?id=@item.Book.Id&page=@ViewContext.HttpContext.Request.Query["page"]"
-                                            class="btn btn-outline-primary bg-gradient py-2">
-                                                <i class="bi bi-dash-square"></i>
-                                            </a>
+
+                                <div class="col-12 col-lg-6 mt-3 mt-lg-0">
+                                    <div class="row align-items-center">
+                                        <div class="col-12 col-md-4 text-center mb-2 mb-md-0">
+                                            <h6 class="fw-semibold mb-0">
+                                                @if (item.Type == TypeStatues.Buying)
+                                                {
+                                                    @($"{item.Book.BuyPrice} EGP × {item.CopyCount}")
+                                                }
+                                                else
+                                                {
+                                                    @($"{item.Book.BorrowPrice} EGP × {item.CopyCount}")
+                                                }
+                                            </h6>
+
                                         </div>
 
-                                    </div>
-                                    <div class="col-3 col-sm-4 col-lg-2 offset-lg-1 text-right pt-2">
-                                        <a href="/Customer/Cart/Delete?id=@item.Book.Id" class="btn btn-danger bg-gradient py-2 ">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </a>
+                                        <div class="col-12 col-md-4 text-center mb-2 mb-md-0">
+                                            <div class="btn-group" role="group">
+                                                <a href="/Customer/Cart/Increment?id=@item.BookId&type=@item.Type&page=@ViewContext.HttpContext.Request.Query["page"]"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-plus-square"></i>
+                                                </a>
+                                                <a href="/Customer/Cart/Decrement?id=@item.BookId&type=@item.Type&page=@ViewContext.HttpContext.Request.Query["page"]"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="bi bi-dash-square"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-md-4 text-center">
+                                            <a href="/Customer/Cart/Delete?id=@item.Book.Id"
+                                               class="btn btn-danger btn-sm">
+                                                <i class="bi bi-trash-fill"></i> Remove
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-
                             </div>
+
                         }
 
                     }
