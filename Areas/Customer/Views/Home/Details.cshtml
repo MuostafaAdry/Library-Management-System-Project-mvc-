@@ -57,7 +57,7 @@
                     </div>
                     <p>
                         <span class="details-label">Status:</span>
-                        @if (Model.IsBorrow)
+                        @if ((bool)Model.IsBorrow)
                         {
                             <span class="badge bg-danger">Borrowed</span>
                         }

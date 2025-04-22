@@ -100,7 +100,8 @@ namespace LibraryManagementSystem.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 
@@ -131,13 +132,14 @@ namespace LibraryManagementSystem.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Cover")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsBorrow")
+                    b.Property<bool?>("IsBorrow")
                         .HasColumnType("bit");
 
                     b.Property<double?>("Offer")
@@ -231,7 +233,8 @@ namespace LibraryManagementSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -326,7 +329,8 @@ namespace LibraryManagementSystem.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 

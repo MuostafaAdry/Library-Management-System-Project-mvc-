@@ -1,0 +1,76 @@
+﻿
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h1 class="text-primary">All Categories</h1>
+
+        <!-- Search Bar -->
+        <form class="d-flex">
+            <input type="text" class="form-control me-2" id="search"
+                   name="query" placeholder="Search...">
+            <button type="submit" class="btn btn-primary">
+                Search
+            </button>
+        </form>
+        <div>
+            <a href="/Admin/Author/Create" class="btn btn-success">Create New</a>
+        </div>
+    </div>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Category Name</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody class="table-group-divider">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <th scope="row">@item.Id</th>
+                <td class="font-weight-bolder">@item.FullName</td>
+                <td>
+                    <a href="/Admin/Author/Edit?authorId=@item.Id" class="btn btn-warning">Edit</a>
+                    <button class="btn btn-danger" onclick="confirmDelete(@item.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div class="row d-flex  justify-content-center align-items-center">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination ">
+            @for (int i = 0; i <= ViewBag.paginationPages; i++)
+            {
+                <li class="page-item "><a class="page-link" href="/Admin/Author/Index?page=@(i+1)">@(i + 1)</a></li>
+            }
+            <li>
+                <a href="/Admin/Author/Index" class="btn btn-primary ms-2">All Categories</a>
+
+            </li>
+
+
+        </ul>
+    </nav>
+</div>
+
+<script>
+    function confirmDelete(authorId) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                window.location.href = "/Admin/Author/Delete?authorId=" + authorId;
+            }
+        });
+    }
+</script>

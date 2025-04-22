@@ -3,7 +3,6 @@ using LibraryManagementSystem.Repositories.IRepositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-//using Type = LibraryManagementSystem.Models.Type;
 
 namespace LibraryManagementSystem.Areas.Customer.Controllers
 {
@@ -112,7 +111,7 @@ namespace LibraryManagementSystem.Areas.Customer.Controllers
             if (book == null)
             {
                 TempData["Error"] = "Book not found";
-                return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
+                return RedirectToAction("DetailsBorrow", "Home", new { area = "Customer", id = id });
 
             }
 
@@ -120,7 +119,7 @@ namespace LibraryManagementSystem.Areas.Customer.Controllers
             if (book.AvailableCopies < copyNum)
             {
                 TempData["Error"] = "We do not have enough books";
-                return RedirectToAction("Details", "Home", new { area = "Customer", id = id });
+                return RedirectToAction("DetailsBorrow", "Home", new { area = "Customer", id = id });
 
             }
             if (bookInDb != null)

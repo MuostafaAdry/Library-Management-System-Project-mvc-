@@ -69,10 +69,13 @@
                                             <h6 class="fw-semibold mb-0">
                                                 @if (item.Type == TypeStatues.Buying)
                                                 {
-                                                    @($"{item.Book.BuyPrice} EGP × {item.CopyCount}")
+                                                    <del>@item.Book.BuyPrice</del>
+                                                    <span>  @($"{item.Book.BuyPrice - (item.Book.BuyPrice * item.Book.Offer * 0.01)} EGP × {item.CopyCount}")</span>
+
                                                 }
                                                 else
                                                 {
+
                                                     @($"{item.Book.BorrowPrice} EGP × {item.CopyCount}")
                                                 }
                                             </h6>

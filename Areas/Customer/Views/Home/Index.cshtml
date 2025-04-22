@@ -95,7 +95,7 @@
 
                         <p class="card-text">
                             <strong>Status:</strong>
-                            @if (book.IsBorrow)
+                            @if ((bool)book.IsBorrow)
                             {
                                 <span class="badge bg-danger badge-status">Borrowed</span>
                             }

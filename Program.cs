@@ -29,6 +29,9 @@ namespace LibraryManagementSystem
 
             builder.Services.AddScoped<IBookRepository, BookRepository>();
             builder.Services.AddScoped<ICartRepository, CartRepository>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+            builder.Services.AddScoped<IPublisherRepository, PublisherRepository>();
 
 
             var app = builder.Build();

@@ -1,0 +1,109 @@
+﻿@model IEnumerable<Book>
+
+<div class="container">
+    <div class=" d-flex justify-content-between align-items-center">
+        <h1 class="category-title">All Books</h1>
+        <a class="btn btn-success" href="/Admin/Book/Create">Create New</a>
+    </div>
+    <div class="row">
+        <form>
+            <div class="col-12 d-flex justify-content-between">
+                <input type="text" class="form-control mx-10" id="search"
+                       aria-describedby="searchHelp"
+                       name="query" placeholder="Search with Category,Name,Publisher,">
+                <button type="submit" class="btn btn-primary">Search</button>
+
+            </div>
+
+        </form>
+
+    </div>
+    <table class="table table-hover my-3">
+        <thead>
+            <tr class="bg-dark text-white">
+                <th scope="col">#</th>
+                <th scope="col">Image</th>
+                <th scope="col">Name</th>
+                <th scope="col">BorrowPrice</th>
+                <th scope="col">BuyPrice</th>
+                <th scope="col">Quantity</th>
+                <td scope="col">PublishedDate</td>
+                <td scope="col">Offer</td>
+                <th scope="col">Category</th>
+                <th scope="col">Author</th>
+                <th scope="col">Publisher</th>
+                <th scope="col">Actions</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td><img src="~/Covers/@item.Cover" alt="Alternate Text" width="100px" /></td>
+                    <td>@item.Title</td>
+                    <td>@item.BorrowPrice</td>
+                    <td>@item.BuyPrice</td>
+                    <td>@item.AvailableCopies</td>
+                    <td>@item.PublishedDate</td>
+                    <td>@item.Offer</td>
+
+                    <td>@item.Category.Name</td>
+                    <td>@item.Author.FullName</td>
+                    <td>@item.Publisher.Name</td>
+                    <td>
+                        <a class="btn btn-warning" href="/Admin/Book/Edit?bookId=@item.Id">Edit</a>
+                        <button class="btn btn-danger btn-sm" href="/Admin/Book/Delete?bookId=@item.Id" onclick="confirmDelete(@item.Id)">Delete</button>
+                    </td>
+ 
+
+
+                </tr>
+
+            }
+
+        </tbody>
+    </table>
+
+</div>
+<div class="row d-flex">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            @for (int i = 0; i <= ViewBag.paginationPages; i++)
+            {
+                <li class="page-item "><a class="page-link" href="/Admin/Book/Index?page=@(i+1)">@(i + 1)</a></li>
+            }
+            <li>
+                <a href="/Admin/Book/Index" class="btn btn-primary ms-2">All Books</a>
+
+            </li>
+
+
+        </ul>
+    </nav>
+</div>
+
+
+@section Scripts {
+    <script>
+        function confirmDelete(bookId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This action cannot be undone!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#6c757d",
+                confirmButtonText: "Yes, delete it!",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/Admin/Book/Delete?bookId=" + bookId;
+                }
+            });
+        }
+    </script>
+}
+
+

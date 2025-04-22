@@ -20,19 +20,19 @@
             <p><strong>Publisher:</strong> @Model.Publisher.Name</p>
             <p><strong>Description:</strong> @Model.Description</p>
             <p><strong>Published:</strong> @Model.PublishedDate.ToString("yyyy-MM-dd")</p>
-            <p><strong>Total Copies:</strong> @Model.TotalCopies</p>
-            <p><strong>Available Copies:</strong> @Model.AvailableCopies</p>
+            @* <p><strong>Total Copies:</strong> @Model.TotalCopies</p> *@
+            @* <p><strong>Available Copies:</strong> @Model.AvailableCopies</p> *@
 
             <form action="/Customer/Cart/BorrowingAddToCart" method="post">
                 <input type="hidden" name="id" value="@Model.Id" />
 
                 <div class="mb-3">
-                    <label for="NumCopy" class="form-label">Number Of Copies</label>
+                    <label for="NumCopy" class="form-label">Number Of Copies*</label>
                     <input type="number" id="NumCopy" name="copyNum" class="form-control w-25" required min="1" />
                 </div>
 
                 <div class="mb-3">
-                    <label for="returnDate" class="form-label">Return Date</label>
+                    <label for="returnDate" class="form-label">Return Date*</label>
                     <input type="date" id="returnDate" name="returnDate" class="form-control w-50" required
                            min="@DateTime.Now.ToString("yyyy-MM-dd")" />
                 </div>
