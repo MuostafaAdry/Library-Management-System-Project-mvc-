@@ -96,6 +96,7 @@ namespace LibraryManagementSystem.Areas.Admin.Controllers
 
             var categories = _categoryRepository.Get();
             ViewBag.categories = categories.ToList();
+
             var authors = _authorRepository.Get();
             ViewBag.authors = authors.ToList();
 
@@ -105,7 +106,100 @@ namespace LibraryManagementSystem.Areas.Admin.Controllers
 
             return View(book);
         }
+        [HttpGet]
+        public IActionResult Edit(int bookId)
+        {
+            var book = _bookRepository.GetOne(e => e.Id == bookId);
+            var categories = _categoryRepository.Get();
+            ViewBag.categories = categories.ToList();
+
+            var authors = _authorRepository.Get();
+            ViewBag.authors = authors.ToList();
+
+            var publishers = _publisherRepository.Get();
+            ViewBag.publishers = publishers.ToList();
+            if (book != null)
+            {
+                return View(book);
+            }
+            return View(new Book());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Book book, IFormFile cover)
+        {
+            var OldimgDB = _bookRepository.GetOne(e => e.Id == book.Id, tracked: false);
+            if (ModelState.IsValid)
+            {
+
+                if (OldimgDB != null && cover != null && cover.Length > 0)
+                {
+                    //save img in wwwroot
+                    //1- create img name with".png"
+                    var imgName = Guid.NewGuid().ToString() + Path.GetExtension(cover.FileName);
+                    //2- choose path where  img will be stored
+                    var imgPath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Covers", imgName);
+
+                    //copy img in the wwwroot
+                    using (var stream = System.IO.File.Create(imgPath))
+                    {
+                        cover.CopyTo(stream);
+                    }
+                    //save img path in db
+                    book.Cover = imgName;
+
+                    //Delete old img from wwwroot
+                    var OldPath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Covers", OldimgDB.Cover);
+                    if (System.IO.File.Exists(OldPath))
+                    {
+                        System.IO.File.Delete(OldPath);
+                    }
+
+                }
+                else
+                    book.Cover = OldimgDB.Cover;
 
 
+
+                _bookRepository.Edit(book);
+                _bookRepository.Commit();
+                TempData["Success"] = "Product Updated Successfully !";
+                return RedirectToAction("Index");
+
+            }
+            var categories = _categoryRepository.Get();
+            ViewBag.categories = categories.ToList();
+
+            var authors = _authorRepository.Get();
+            ViewBag.authors = authors.ToList();
+
+            var publishers = _publisherRepository.Get();
+            ViewBag.publishers = publishers.ToList();
+            return View();
+        }
+        public IActionResult Delete(int bookId)
+        {
+            var book = _bookRepository.GetOne(e => e.Id == bookId);
+
+            if (book != null)
+            {
+                //Delete old img from wwwroot
+                if (book.Cover != null)
+                {
+                    var OldPath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\Covers", book.Cover);
+                    if (System.IO.File.Exists(OldPath))
+                    {
+                        System.IO.File.Delete(OldPath);
+                    }
+                }
+                _bookRepository.Delete(book);
+                _bookRepository.Commit(); 
+                TempData["Success"] = "Product Deleted Successfully !";
+                return RedirectToAction("Index");
+            }
+          
+            return RedirectToAction("NotFoundPage", "Home");
+        }
     }
 }

@@ -80,7 +80,8 @@ namespace LibraryManagementSystem.Areas.Identity.Controllers
             if (ModelState.IsValid)
             {
                 var appUser =await _userManager.FindByEmailAsync(loginVM.Email);
-                if (appUser!=null)
+                //if (appUser!= null&& appUser.LockoutEnabled && appUser.LockoutEnd > DateTimeOffset.Now)
+                if (appUser!= null )
                 {
                     var result =await _userManager.CheckPasswordAsync(appUser, loginVM.Password);
 

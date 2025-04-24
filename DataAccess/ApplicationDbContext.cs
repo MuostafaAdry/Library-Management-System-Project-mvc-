@@ -20,6 +20,7 @@ namespace LibraryManagementSystem.DataAccess
         {
             
         }
+        public DbSet<LibraryManagementSystem.Models.ViewModel.RegisterVM> RegisterVM { get; set; } = default!;
         //public DbSet<LibraryManagementSystem.Models.ViewModel.RegisterVM> RegisterVM { get; set; } = default!;
         //public DbSet<LibraryManagementSystem.Models.ViewModel.LoginVM> LoginVM { get; set; } = default!;
     }

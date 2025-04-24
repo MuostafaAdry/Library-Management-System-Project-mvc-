@@ -1,0 +1,121 @@
+﻿@model List<ApplicationUser>
+<div class="container">
+    <div class=" d-flex justify-content-between align-items-center">
+        <h1 class="category-title">All Users</h1>
+        <a class="btn btn-success" href="/Admin/User/Create">Create New</a>
+    </div>
+    <div class="row">
+        <form>
+            <div class="col-12 d-flex justify-content-between">
+                <input type="text" class="form-control mx-3" id="search"
+                       aria-describedby="searchHelp"
+                       name="query" placeholder="Search...">
+                <button type="submit" class="btn btn-primary">Search</button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <table class="table table-hover my-3">
+        <thead>
+            <tr class="bg-dark text-white">
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Address</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <th scope="row">@item.Id</th>
+                    <td>@item.UserName</td>
+                    <td>@item.Email</td>
+                    <td>@item.Address</td>
+                    <td>
+                        @* <a href="#" class="btn btn-warning" onclick="confirmBlock('@item.Id')">Block</a> *@
+                        @* <input type="datetime-local" name="blockDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" /> *@
+                        <form method="post" action="/Admin/User/Block">
+                            <input type="hidden" name="userId" value="@item.Id" />
+                            <input type="datetime-local" name="blockDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
+                            <button type="submit" class="btn btn-warning">Block</button>
+                        </form>
+
+                        <a href="#" class="btn btn-danger" onclick="confirmDelete('@item.Id')">Delete</a>
+                    </td>
+
+
+                </tr>
+
+            }
+
+        </tbody>
+    </table>
+
+</div>
+
+<div class="row d-flex">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            @for (int i = 0; i <= ViewBag.paginationPages; i++)
+            {
+                <li class="page-item "><a class="page-link" href="/Admin/User/Index?page=@(i+1)">@(i + 1)</a></li>
+            }
+            <li>
+                <a href="/Admin/User/Index" class="btn btn-primary ms-2">All Users</a>
+
+            </li>
+
+
+        </ul>
+    </nav>
+</div>
+
+@section Scripts {
+    @if (TempData["notification"] != null)
+    {
+        <script>
+            toastr.success('@TempData["notification"]')
+        </script>
+    } 
+    @* <script> *@
+    @*     function confirmBlock(userId) { *@
+    @*         Swal.fire({ *@
+    @*             title: "Are you sure?", *@
+    @*             text: "You won't be able to revert this!", *@
+    @*             icon: "warning", *@
+    @*             showCancelButton: true, *@
+    @*             confirmButtonColor: "#3085d6", *@
+    @*             cancelButtonColor: "#d33", *@
+    @*             confirmButtonText: "Yes, Block it!" *@
+    @*         }).then((result) => { *@
+    @*             if (result.isConfirmed) { *@
+    @*                 window.location.href = "/Admin/User/Block?UserId=" + userId; *@
+    @*             } *@
+    @*         }); *@
+    @*     } *@
+    @* </script> *@
+    <script>
+        function confirmDelete(userId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/Admin/User/Delete?UserId=" + userId;
+                }
+            });
+        }
+    </script>
+}
+
+
