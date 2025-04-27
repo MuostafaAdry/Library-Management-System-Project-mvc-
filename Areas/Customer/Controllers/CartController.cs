@@ -286,6 +286,7 @@ namespace LibraryManagementSystem.Areas.Customer.Controllers
             foreach (var item in cart)
             {
                 var orderItem = new OrderItem()
+
                 {
                     OrderId = order.Id,
                     BookId = item.Book.Id,
