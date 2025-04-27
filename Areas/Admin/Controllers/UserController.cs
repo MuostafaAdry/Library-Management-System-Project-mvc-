@@ -87,7 +87,7 @@ namespace LibraryManagementSystem.Areas.Admin.Controllers
         public IActionResult Delete(string userId)
         {
             var userAcount = _userRepository.GetOne(e => e.Id == userId);
-            if (userAcount!=null)
+            if (userAcount != null)
             {
                 _userRepository.Delete(userAcount);
                 _userRepository.Commit();
@@ -95,24 +95,47 @@ namespace LibraryManagementSystem.Areas.Admin.Controllers
             }
             return RedirectToAction("Index");
         }
-        public IActionResult Block(string userId, DateTime? blockDate)
+        public IActionResult Block(string userId)
         {
-            var User = _userRepository.GetOne(e => e.Id == userId);
-            if (User != null && blockDate.HasValue)
+            var user = _userRepository.GetOne(e => e.Id == userId);
+            if (user != null)
             {
-                User.LockoutEnabled = true;
-                User.LockoutEnd = new DateTimeOffset(blockDate.Value);
-                _userRepository.Edit(User);
+                // Block for 15 days from now
+                user.LockoutEnabled = true;
+                user.LockoutEnd = DateTimeOffset.UtcNow.AddDays(15);
+
+                _userRepository.Edit(user);
                 _userRepository.Commit();
-                TempData["Success"] = "Account Blocked Successfully!";
+
+                TempData["Success"] = "Account has been blocked for 15 days successfully!";
             }
             else
             {
-                TempData["Error"] = "Please select a valid block date.";
+                TempData["Error"] = "User not found.";
             }
 
             return RedirectToAction("Index");
         }
 
+        public IActionResult UnBlock(string userId)
+        {
+            var user = _userRepository.GetOne(e => e.Id == userId);
+            if (user != null)
+            {
+                user.LockoutEnabled = false;
+                user.LockoutEnd = null;
+
+                _userRepository.Edit(user);
+                _userRepository.Commit();
+
+                TempData["Success"] = "UnBlocked Successfully!";
+            }
+            else
+            {
+                TempData["Error"] = "User not found.";
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }

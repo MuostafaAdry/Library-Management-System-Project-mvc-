@@ -2,8 +2,10 @@ using LibraryManagementSystem.DataAccess;
 using LibraryManagementSystem.Models;
 using LibraryManagementSystem.Repositories;
 using LibraryManagementSystem.Repositories.IRepositories;
+using LibraryManagementSystem.Utility;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace LibraryManagementSystem
 {
@@ -33,7 +35,12 @@ namespace LibraryManagementSystem
             builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
             builder.Services.AddScoped<IPublisherRepository, PublisherRepository>();
             builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
+            // Configure Stripe settings
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
             var app = builder.Build();
 

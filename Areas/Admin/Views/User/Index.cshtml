@@ -8,8 +8,8 @@
         <form>
             <div class="col-12 d-flex justify-content-between">
                 <input type="text" class="form-control mx-3" id="search"
-                       aria-describedby="searchHelp"
-                       name="query" placeholder="Search...">
+                aria-describedby="searchHelp"
+                name="query" placeholder="Search...">
                 <button type="submit" class="btn btn-primary">Search</button>
 
             </div>
@@ -25,6 +25,7 @@
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
                 <th scope="col">Address</th>
+                <th scope="col">PhoneNumber</th>
                 <th scope="col">Actions</th>
             </tr>
         </thead>
@@ -32,20 +33,24 @@
             @foreach (var item in Model)
             {
                 <tr>
-                    <th scope="row">@item.Id</th>
+                    <th scope="row">@item.Id.Substring(0,10)</th>
                     <td>@item.UserName</td>
                     <td>@item.Email</td>
                     <td>@item.Address</td>
+                    <td>@item.PhoneNumber</td>
                     <td>
-                        @* <a href="#" class="btn btn-warning" onclick="confirmBlock('@item.Id')">Block</a> *@
-                        @* <input type="datetime-local" name="blockDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" /> *@
-                        <form method="post" action="/Admin/User/Block">
-                            <input type="hidden" name="userId" value="@item.Id" />
-                            <input type="datetime-local" name="blockDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
-                            <button type="submit" class="btn btn-warning">Block</button>
-                        </form>
+                       
+                        @if (item.LockoutEnd==null)
+                        {
+                             <a href="#" class="btn btn-warning" onclick="confirmBlock('@item.Id')">Block</a>
+                        }
+                        else
+                        {
+                            <a href="#" class="btn btn-warning" onclick="confirmUnBlock('@item.Id')">UnBlock</a>                     
+                            <a href="#" class="btn btn-danger" onclick="confirmDelete('@item.Id')">Delete</a>
+                        }
 
-                        <a href="#" class="btn btn-danger" onclick="confirmDelete('@item.Id')">Delete</a>
+
                     </td>
 
 
@@ -58,9 +63,11 @@
 
 </div>
 
-<div class="row d-flex">
+ 
+
+<div class="row d-flex  justify-content-center align-items-center">
     <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
+        <ul class="pagination ">
             @for (int i = 0; i <= ViewBag.paginationPages; i++)
             {
                 <li class="page-item "><a class="page-link" href="/Admin/User/Index?page=@(i+1)">@(i + 1)</a></li>
@@ -81,24 +88,43 @@
         <script>
             toastr.success('@TempData["notification"]')
         </script>
-    } 
-    @* <script> *@
-    @*     function confirmBlock(userId) { *@
-    @*         Swal.fire({ *@
-    @*             title: "Are you sure?", *@
-    @*             text: "You won't be able to revert this!", *@
-    @*             icon: "warning", *@
-    @*             showCancelButton: true, *@
-    @*             confirmButtonColor: "#3085d6", *@
-    @*             cancelButtonColor: "#d33", *@
-    @*             confirmButtonText: "Yes, Block it!" *@
-    @*         }).then((result) => { *@
-    @*             if (result.isConfirmed) { *@
-    @*                 window.location.href = "/Admin/User/Block?UserId=" + userId; *@
-    @*             } *@
-    @*         }); *@
-    @*     } *@
-    @* </script> *@
+    }     
+     <script> 
+          function confirmBlock(userId) {  
+              Swal.fire({  
+                  title: "Are you sure to Block him to 15 Days ?",  
+               text: "You won't be able to revert this!",  
+                 icon: "warning",  
+                   showCancelButton: true,  
+                 confirmButtonColor: "#3085d6",  
+                  cancelButtonColor: "#d33",  
+                  confirmButtonText: "Yes, Block him!"  
+              }).then((result) => {  
+                  if (result.isConfirmed) {  
+                      window.location.href = "/Admin/User/Block?UserId=" + userId;   
+                  }  
+               });  
+          }  
+      </script>    
+      <script>
+
+        function confirmUnBlock(userId) {
+            Swal.fire({  
+                  title: "Are you sure to UnBlock him?",  
+               text: "You won't be able to revert this!",  
+                 icon: "warning",  
+                   showCancelButton: true,  
+                 confirmButtonColor: "#3085d6",  
+                  cancelButtonColor: "#d33",
+                  confirmButtonText: "Yes, UnBlock him!"
+              }).then((result) => {  
+                  if (result.isConfirmed) {
+                      window.location.href = "/Admin/User/UnBlock?UserId=" + userId;
+                  }  
+               });  
+          }  
+      </script>  
+
     <script>
         function confirmDelete(userId) {
             Swal.fire({

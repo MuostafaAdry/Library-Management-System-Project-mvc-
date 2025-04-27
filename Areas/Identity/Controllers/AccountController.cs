@@ -15,8 +15,7 @@ namespace LibraryManagementSystem.Areas.Identity.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         public AccountController(UserManager<ApplicationUser> userManager,
            RoleManager<IdentityRole> roleManager,
-           SignInManager<ApplicationUser> signInManager
-            )
+           SignInManager<ApplicationUser> signInManager)
         {
             this._userManager = userManager;
             this._roleManager = roleManager;
@@ -27,34 +26,35 @@ namespace LibraryManagementSystem.Areas.Identity.Controllers
         {
             if (_roleManager.Roles.IsNullOrEmpty())
             {
-               await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
-               await _roleManager.CreateAsync(new IdentityRole("Admin"));
-               await _roleManager.CreateAsync(new IdentityRole("Customer"));
+                await _roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
+                await _roleManager.CreateAsync(new IdentityRole("Admin"));
+                await _roleManager.CreateAsync(new IdentityRole("Customer"));
                 await _roleManager.CreateAsync(new IdentityRole("Company"));
             }
             return View(new RegisterVM());
         }
-        
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterVM registerVM)
         {
             if (ModelState.IsValid)
             {
-                ApplicationUser applicationUser = new ()
+                ApplicationUser applicationUser = new()
                 {
-                    UserName=registerVM.UserName,
-                    Email=registerVM.Email,
-                    Address=registerVM.Adress,
-                    PhoneNumber=registerVM.PhoneNumber
+                    UserName = registerVM.UserName,
+                    Email = registerVM.Email,
+                    Address = registerVM.Adress,
+                    PhoneNumber = registerVM.PhoneNumber
                 };
 
-              var result=await _userManager.CreateAsync(applicationUser, registerVM.Password);
+                var result = await _userManager.CreateAsync(applicationUser, registerVM.Password);
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(applicationUser, "Customer");
+                    TempData["Success"] = "Register Successfully, Login Please !";
                     return RedirectToAction("Login", "Account", new { area = "Identity" });
-                 }
+                }
                 else
                 {
                     foreach (var error in result.Errors)
@@ -79,15 +79,21 @@ namespace LibraryManagementSystem.Areas.Identity.Controllers
         {
             if (ModelState.IsValid)
             {
-                var appUser =await _userManager.FindByEmailAsync(loginVM.Email);
-                //if (appUser!= null&& appUser.LockoutEnabled && appUser.LockoutEnd > DateTimeOffset.Now)
-                if (appUser!= null )
+                var appUser = await _userManager.FindByEmailAsync(loginVM.Email);
+                if (appUser != null)
                 {
-                    var result =await _userManager.CheckPasswordAsync(appUser, loginVM.Password);
+                    //check block
+                    if (await _userManager.IsLockedOutAsync(appUser ))
+                    {
+                        TempData["Error"] = "Sorry your Account Is Blocking you Con Not Use It !";
+                        return View(loginVM);
+                    }
+                    var result = await _userManager.CheckPasswordAsync(appUser, loginVM.Password);
 
                     if (result)
                     {
-                        await  _signInManager.SignInAsync(appUser, loginVM.RememberMe);
+                        await _signInManager.SignInAsync(appUser, loginVM.RememberMe);
+                        TempData["Success"] = "Login Successfully !";
                         return RedirectToAction("Index", "Home", new { area = "Customer" });
                     }
                     else
@@ -106,7 +112,7 @@ namespace LibraryManagementSystem.Areas.Identity.Controllers
         public IActionResult Logout()
         {
             _signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account", new { area="Identity" });
+            return RedirectToAction("Login", "Account", new { area = "Identity" });
         }
 
         public IActionResult AccessDenied() => View();
